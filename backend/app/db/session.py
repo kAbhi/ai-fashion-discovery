@@ -1,0 +1,32 @@
+from collections.abc import Iterator
+from functools import lru_cache
+
+from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.orm import Session, sessionmaker
+
+from app.core.config import get_settings
+
+
+@lru_cache
+def get_engine() -> Engine:
+    # pool_pre_ping recovers from connections dropped by managed databases / sleeping hosts.
+    return create_engine(get_settings().database_url, pool_pre_ping=True)
+
+
+@lru_cache
+def get_sessionmaker() -> sessionmaker[Session]:
+    return sessionmaker(bind=get_engine(), autoflush=False, expire_on_commit=False)
+
+
+def get_db() -> Iterator[Session]:
+    """FastAPI dependency yielding a request-scoped database session."""
+    session = get_sessionmaker()()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
+def check_database(session: Session) -> None:
+    """Raise if the database cannot execute a trivial query."""
+    session.execute(text("SELECT 1"))

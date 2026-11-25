@@ -1,0 +1,52 @@
+# Render Blueprint — ai-fashion-discovery
+# Defines the backend Web Service and Render PostgreSQL database.
+# The frontend is deployed separately on Vercel with Root Directory `frontend`.
+#
+# Manual steps still required by the project owner:
+#   1. Connect this repo to Render in the Render Dashboard.
+#   2. Create the backend Web Service from this blueprint (rootDir: backend).
+#   3. Enter secret env vars (DATABASE_URL, LLM_API_KEY, CORS_ORIGINS) in the dashboard.
+#   4. Create the Vercel project (rootDir: frontend) and set NEXT_PUBLIC_API_BASE_URL.
+#
+# Hosting resources are NOT created by this file alone.
+
+services:
+  - type: web
+    runtime: python
+    name: fashion-discovery-backend
+    rootDir: backend
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements-dev.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13"
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: CORS_ORIGIN_REGEX
+        sync: false
+      - key: LLM_PROVIDER
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+
+databases:
+  - name: fashion-discovery-db
+    databaseName: fashion_discovery
+    user: fashion
+    plan: 0.1c-256mb
+    region: oregon
+    postgresMajorVersion: '14'

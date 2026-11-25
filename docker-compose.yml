@@ -1,0 +1,61 @@
+# Local development stack: PostgreSQL + FastAPI backend + Next.js frontend.
+# Usage:   cp .env.example .env && docker compose up --build
+# Database only:  docker compose up -d db
+#
+# Credentials below are LOCAL-ONLY development defaults, overridable via .env.
+# They are never used by Render/Vercel deployments.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fashion}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fashion}
+      POSTGRES_DB: ${POSTGRES_DB:-fashion_discovery}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-fashion}:${POSTGRES_PASSWORD:-fashion}@db:5432/${POSTGRES_DB:-fashion_discovery}
+      TEST_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-fashion}:${POSTGRES_PASSWORD:-fashion}@db:5432/fashion_discovery_test
+      ENVIRONMENT: local
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+    # Migrations are an explicit step (never destructive), then the dev server starts.
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      # The browser calls the API directly, so this is the host-visible URL.
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

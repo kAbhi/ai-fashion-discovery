@@ -41,6 +41,28 @@ written.
 | Docker / Docker Compose | optional | NOT installed (see §9) |
 
 
+## 11. Manual Action Checklist
+
+| # | Action | Status | Notes |
+|---|--------|--------|-------|
+| 1 | Confirm GitHub access to `kAbhi/ai-fashion-discovery` | Completed | Remote `origin` already configured locally |
+| 2 | Create Vercel account + connect GitHub | Not started | Required before frontend deploy |
+| 3 | Create Render account + connect GitHub | Not started | Required before backend/database deploy |
+| 4 | Create Render PostgreSQL database (choose plan) | Not started | Free expires after 30 days; note External URL |
+| 5 | Create Render Web Service (root dir `backend`) | Not started | Build `pip install -r requirements-dev.txt`; start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`; health `/health` |
+| 6 | Create Vercel project (root dir `frontend`) | Not started | Build `npm run build` |
+| 7 | Configure `CORS_ORIGINS` on backend = frontend URL | Not started | Needs both frontend and backend URLs |
+| 8 | Configure `NEXT_PUBLIC_API_BASE_URL` on frontend = backend URL | Not started | Needs backend URL |
+| 9 | Enter `DATABASE_URL` and `LLM_API_KEY` as secrets | Not started | `LLM_API_KEY` only when Phase 2 adds LLM |
+| 10 | Run smoke tests (§8) after first deploy | Not started | Backend `/health`, frontend page, CORS, DB connectivity |
+| 11 | Approve production deployment | Not started | Do not mark complete until deployed app verified |
+
+## 13. Phase Completion Notes — Phase 2
+
+- What changed in DEPLOYMENT.md: added §11 manual action checklist, updated environment variable table with Phase 1 additions.
+- What you need to do next, in order: create Vercel and Render accounts; create Render PostgreSQL; create backend web service; create frontend project; configure environment variables; run smoke tests; approve production.
+- What I completed automatically: frontend scaffold (Next.js App Router), SystemStatus component, ProductCard component, homepage with shopping input and prompts, Tailwind config, Vitest tests (8 tests passing), DEPLOYMENT.md updates, git commit `feat(frontend): implement responsive fashion shopping experience`.
+- What remains unverified or requires your intervention: Docker Compose cannot be tested locally (Docker not installed on this machine); hosting accounts/resources not created; no production deployment has been executed or verified; Vercel and Render accounts need to be created by project owner.
 ## 3. One-Time Manual Setup
 
 These are actions only you can perform in hosting dashboards.

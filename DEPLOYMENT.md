@@ -65,6 +65,25 @@ These are actions only you can perform in hosting dashboards.
 9. Enable automatic deployments from `main` (default). Preview deployments are automatic for branches/PRs.
 
 ### 3.3 Render (backend + database)
+## 4. Environment Variables and Secrets
+
+| Variable | Where configured | Secret? | Required | Purpose | Environments |
+|----------|------------------|---------|----------|---------|--------------|
+| `DATABASE_URL` | Render dashboard (backend) | Yes | Yes | PostgreSQL connection URL (Render provides internal/external URL) | preview, production |
+| `TEST_DATABASE_URL` | backend `.env` (local only) | Yes | No | Test database URL | local |
+| `ENVIRONMENT` | Render dashboard / `.env` | No | No | `local\|test\|preview\|production` | all |
+| `LOG_LEVEL` | Render dashboard / `.env` | No | No | Logging level | all |
+| `CORS_ORIGINS` | Render dashboard (backend) | No | Yes | Comma-separated allowed browser origins | preview, production |
+| `CORS_ORIGIN_REGEX` | Render dashboard (backend) | No | No | Regex for Vercel Preview origins (preview backend only) | preview |
+| `LLM_PROVIDER` | Render dashboard (backend) | No | No | LLM provider name | preview, production |
+| `LLM_API_KEY` | Render dashboard (backend) | **Yes** | No | LLM API key | preview, production |
+| `NEXT_PUBLIC_API_BASE_URL` | Vercel dashboard (frontend) | No | Yes | Backend base URL for browser calls | preview, production |
+| `POSTGRES_USER/PASSWORD/DB/PORT` | local `.env` / docker-compose | No (local only) | No | Local Docker Compose credentials | local |
+| `SAMPLE_DATA_LOADED` | backend `.env` | No | No | Set to `true` when sample catalogue is loaded into the production database; prevents re-seeding on every restart | production |
+
+- Never commit `.env`, `.env.local`, or any file containing real secrets.
+- `.env.example` is committed with placeholder values only.
+- `LLM_API_KEY` must never have the `NEXT_PUBLIC_` prefix.
 
 1. Log in to [Render Dashboard](https://dashboard.render.com).
 2. **Database first:** click **New → PostgreSQL**, choose a plan:

@@ -294,3 +294,17 @@ Rollback: Render and Vercel both offer one-click rollback to the previous deploy
 - Never commit `.env`, `.env.local`, or any file containing real secrets.
 - `.env.example` is committed with placeholder values only.
 - `LLM_API_KEY` must never have the `NEXT_PUBLIC_` prefix.
+
+## 13. Phase Completion Notes — Phase 1
+
+- What changed in DEPLOYMENT.md: added `SAMPLE_DATA_LOADED` env var documentation.
+- What you need to do next, in order: create Vercel and Render accounts; create Render PostgreSQL; create backend web service; create frontend project; configure environment variables; run smoke tests; approve production.
+- What I completed automatically: backend SQLAlchemy models (Product, ProductVariant, MerchantListing, ShoppingSession, ProductInteraction, UserPreference, WishlistItem, ProductComparison), Alembic migration `6ffe32ecb29b_add_product_catalogue_models`, product provider abstraction, catalogue APIs (list, detail, similar, merchant listings), sample catalogue (100+ Indian fashion/footwear products), backend tests (34 passing), seed script.
+- What remains unverified or requires your intervention: hosting accounts/resources not created; no production deployment has been executed or verified.
+
+## 14. Phase Completion Notes — Phase 2
+
+- What changed in DEPLOYMENT.md: added frontend build and test instructions; Vercel root directory confirmed as `frontend/`; `NEXT_PUBLIC_API_BASE_URL` env var documented.
+- What you need to do next, in order: create Vercel account; connect GitHub; set root directory to `frontend/`; configure `NEXT_PUBLIC_API_BASE_URL`; run smoke tests; approve production.
+- What I completed automatically: homepage with NL shopping input and suggested prompts, product results page with pagination, product detail page with gallery/merchant info/variants, navigation component, skeleton loaders, API service layer, Vitest tests (13 passing), Playwright E2E test config + specs (homepage, product browsing, product detail), Next.js production build passing.
+- What remains unverified or requires your intervention: Vercel account not created; production deployment not executed; Playwright E2E tests not run against live deployment (requires hosting resources).
